@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">TTA</string>
+    <string name="diario_de_gratitud">Diario de gratitud</string>
+    <string name="hoy">Hoy</string>
+    <string name="por_qu_te_sientes_agradecido_hoy">¿Por qué te sientes agradecido hoy?</string>
+    <string name="empty_thank_you_note_quote">“La gratitud da sentido a nuestro pasado, trae la paz en el día de hoy y crea una visión hacia el mañana”</string>
+    <string name="melody_beattie">– Melody Beattie</string>
+    <string name="escribe_en_tu_diario">Escribe en tu diario</string>
+    <string name="libros">Libros</string>
+    <string name="perfil">Perfil</string>
+    <string name="diario">Diario</string>
+</resources>
