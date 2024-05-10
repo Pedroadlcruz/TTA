@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.example.tta.R
 import com.example.tta.models.Book
 import com.example.tta.models.allBooks
+import com.example.tta.ui.common.AppButton
 import com.example.tta.ui.common.TTABackground
 import com.example.tta.ui.common.TTANavBar
 import com.example.tta.ui.theme.FinalOrangeApp
@@ -126,27 +127,15 @@ fun BookCard(cover: Int, title: String, author: String, modifier: Modifier = Mod
             ) {
                 Text(text = title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text(text = author, fontSize = 14.sp, color = Color.Gray)
-                Button(
-                    onClick = { /*TODO*/ },
-                    colors = ButtonDefaults.buttonColors(containerColor = FinalOrangeApp),
-                    modifier = Modifier
-                        .align(alignment = Alignment.End)
-                        .fillMaxWidth()
-                        .padding(end = 16.dp)
-                ) {
-                    Text(
-                        text = "COMPRAR",
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                AppButton("COMPRAR",modifier = Modifier.align(alignment = Alignment.End))
 
             }
         }
     }
 
 }
+
+
 
 @Preview(showBackground = true)
 @Composable
