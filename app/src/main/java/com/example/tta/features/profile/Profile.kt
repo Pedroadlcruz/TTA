@@ -1,7 +1,5 @@
 package com.example.tta.features.profile
 
-import android.graphics.drawable.Icon
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,26 +11,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -46,6 +39,9 @@ import com.example.tta.models.allBooks
 import com.example.tta.ui.common.AppButton
 import com.example.tta.ui.common.TTABackground
 import com.example.tta.ui.common.TTANavBar
+import com.example.tta.ui.theme.DarkBlue
+import com.example.tta.ui.theme.DisableGray
+import com.example.tta.ui.theme.FinalOrangeApp
 import com.example.tta.ui.theme.TTATheme
 
 @Composable
@@ -91,7 +87,8 @@ fun ProfileBody(modifier: Modifier = Modifier) {
                     .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
                     .height(55.dp)
             )
-            BooksSlider(books = allBooks)
+//            BooksSlider(books = allBooks)
+            RecommendedBooks()
         }
     }
 
@@ -162,7 +159,7 @@ fun ResultCard(modifier: Modifier = Modifier) {
                 .padding(bottom = 12.dp)
                 .height(12.dp)
                 .padding(horizontal = 16.dp),
-            strokeCap = ProgressIndicatorDefaults.CircularIndeterminateStrokeCap,
+            strokeCap = StrokeCap.Round
         )
 
         Row(modifier = Modifier, horizontalArrangement = Arrangement.SpaceBetween) {
@@ -188,7 +185,7 @@ fun ResultCard(modifier: Modifier = Modifier) {
 
 @Composable
 fun BooksSlider(books: List<Book>, modifier: Modifier = Modifier) {
-    LazyRow(modifier = Modifier) {
+    LazyRow(modifier = modifier) {
         items(books.size) { book ->
             BookCard(
                 cover = books.elementAt(book).cover,
@@ -199,9 +196,55 @@ fun BooksSlider(books: List<Book>, modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+fun RecommendedBooks(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.background(color = DisableGray)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, start = 24.dp, end = 24.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Libros recomendados",
+                fontWeight = FontWeight.W400,
+                fontSize = 17.sp,
+                color = DarkBlue
+            )
+            Text(
+                text = "Ver más",
+                fontWeight = FontWeight.Bold,
+                fontSize = 17.sp,
+                color = FinalOrangeApp
+            )
+        }
+        BooksSlider(books = allBooks, modifier = Modifier.padding(top = 24.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp, start = 36.dp, end = 36.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.ic_top_arrow),
+                contentDescription = null,
+                modifier = Modifier.padding(end = 16.dp)
+            )
+            Text(
+                text = "Te recomiendo elegir uno de los libros que te salió en el resultado del test e iniciar a leerlo.",
+                fontWeight = FontWeight.W400,
+                fontSize = 12.sp,
+                lineHeight = 16.sp,
+                color = DarkBlue
+            )
+
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
-private fun ProfileScreenPreview(modifier: Modifier = Modifier) {
+private fun ProfileScreenPreview() {
     TTATheme {
         ProfileScreen()
     }
@@ -213,14 +256,20 @@ private fun ProfileScreenPreview(modifier: Modifier = Modifier) {
 //    TTATheme { ProfileCard() }
 //}
 
-@Preview(showBackground = true)
-@Composable
-private fun ResultCardPreview(modifier: Modifier = Modifier) {
-    TTATheme { ResultCard() }
-}
+//@Preview(showBackground = true)
+//@Composable
+//private fun ResultCardPreview(modifier: Modifier = Modifier) {
+//    TTATheme { ResultCard() }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//private fun BooksSliderPreview(modifier: Modifier = Modifier) {
+//    TTATheme { BooksSlider(books = allBooks) }
+//}
 
 @Preview(showBackground = true)
 @Composable
-private fun BooksSliderPreview(modifier: Modifier = Modifier) {
-    TTATheme { BooksSlider(books = allBooks) }
+private fun RecommendedBooksPreview() {
+    TTATheme { RecommendedBooks() }
 }

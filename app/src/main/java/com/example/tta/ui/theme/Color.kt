@@ -11,3 +11,5 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val FinalOrangeApp = Color(0xFFFF9C27)
+val DarkBlue = Color(0xFF1C283C)
+val DisableGray = Color(0xFFE3E3E3)
