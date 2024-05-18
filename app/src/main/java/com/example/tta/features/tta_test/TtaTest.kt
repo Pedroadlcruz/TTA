@@ -64,16 +64,10 @@ fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewMo
                 question = ttaViewState.selectedQuestion!!,
                 progress = ttaTestViewModel.progress(),
                 progressText = ttaTestViewModel.progressText(),
-                onAnswerClick = { ttaTestViewModel.onAnswerSelected(it) },
+                onAnswerClick = ttaTestViewModel::onAnswerSelected,
                 onBackClick = { ttaTestViewModel.previousQuestion() },
-                isAnswerSelected = { answerId, questionId ->
-                    ttaTestViewModel.isAnswerSelected(
-                        answerId,
-                        questionId
-                    )
-                })
-
-
+                isAnswerSelected =  ttaTestViewModel::isAnswerSelected
+            )
         }
     }
 }
@@ -201,13 +195,14 @@ fun AnswerButton(
                 text = index,
                 color = if (isSelect) Color.White else ContentGray,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 8.dp)
+                fontWeight = if (isSelect) FontWeight.Bold else FontWeight.W400,
+                modifier = Modifier.padding(end = 8.dp)
             )
             Text(
                 text = text,
                 color = if (isSelect) Color.White else ContentGray,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = if (isSelect) FontWeight.Bold else FontWeight.W400
             )
         }
 
