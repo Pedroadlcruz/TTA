@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.IconButton
@@ -20,11 +21,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
@@ -35,18 +36,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tta.R
-import com.example.tta.models.Answer
 import com.example.tta.models.Question
-import com.example.tta.ui.common.TTANavBar
 import com.example.tta.ui.theme.BgGray
 import com.example.tta.ui.theme.ContentGray
 import com.example.tta.ui.theme.DarkBlue
 import com.example.tta.ui.theme.DisableGray
 import com.example.tta.ui.theme.FinalOrangeApp
-import com.example.tta.ui.theme.MiddleGray
 import com.example.tta.ui.theme.SuccessGreen
 import com.example.tta.ui.theme.TTADarkGray
 import com.example.tta.ui.theme.TTATheme
+import com.example.tta.utils.compositionLocals.DisabledRippleThemeColorAndAlpha
 
 @Composable
 fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewModel = viewModel()) {
@@ -183,6 +182,7 @@ fun AnswerButton(
     isSelect: Boolean = false,
     onAnswerClick: () -> Unit
 ) {
+    CompositionLocalProvider(LocalRippleTheme provides DisabledRippleThemeColorAndAlpha) {
     Button(
         onClick = onAnswerClick,
         colors = if (isSelect) ButtonDefaults.buttonColors(containerColor = FinalOrangeApp) else
@@ -191,11 +191,12 @@ fun AnswerButton(
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp),
         border = if (isSelect) null else BorderStroke(2.dp, DisableGray),
         modifier = modifier
+
             .fillMaxWidth()
             .padding(bottom = 20.dp)
-            .height(58.dp)
+
     ) {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxWidth() .padding(vertical = 16.dp)) {
             Text(
                 text = index,
                 color = if (isSelect) Color.White else ContentGray,
@@ -210,7 +211,7 @@ fun AnswerButton(
             )
         }
 
-    }
+    }}
 
 }
 
