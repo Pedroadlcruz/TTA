@@ -8,6 +8,9 @@
       <SelectionState runConfigName="Kotlin.TTA.app">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="CODE.Kotlin.TTA.app">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
