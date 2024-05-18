@@ -20,6 +20,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +33,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tta.R
+import com.example.tta.models.Answer
+import com.example.tta.models.Question
 import com.example.tta.ui.common.TTANavBar
 import com.example.tta.ui.theme.BgGray
 import com.example.tta.ui.theme.ContentGray
@@ -44,23 +49,46 @@ import com.example.tta.ui.theme.TTADarkGray
 import com.example.tta.ui.theme.TTATheme
 
 @Composable
-fun TtaTestScreen(modifier: Modifier = Modifier) {
+fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewModel = viewModel()) {
+    val ttaViewState by ttaTestViewModel.viewStateFlow.collectAsState()
+
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        bottomBar = { TTANavBar() }
+        modifier = modifier.fillMaxSize(),
     ) { innerPadding ->
         Surface(
             modifier = Modifier
                 .padding(innerPadding),
             color = MaterialTheme.colorScheme.background
         ) {
-            TestBody()
+
+            TestBody(
+                question = ttaViewState.selectedQuestion!!,
+                progress = ttaTestViewModel.progress(),
+                progressText = ttaTestViewModel.progressText(),
+                onAnswerClick = { ttaTestViewModel.onAnswerSelected(it) },
+                onBackClick = { ttaTestViewModel.previousQuestion() },
+                isAnswerSelected = { answerId, questionId ->
+                    ttaTestViewModel.isAnswerSelected(
+                        answerId,
+                        questionId
+                    )
+                })
+
+
         }
     }
 }
 
 @Composable
-fun TestBody(modifier: Modifier = Modifier) {
+fun TestBody(
+    modifier: Modifier = Modifier,
+    question: Question,
+    progress: Float,
+    progressText: String,
+    onAnswerClick: (answerId: String) -> Unit,
+    onBackClick: () -> Unit,
+    isAnswerSelected: (answerId: String, questionId: String) -> Boolean,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -75,7 +103,7 @@ fun TestBody(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { /*TODO*/ },
+                onClick = onBackClick,
                 modifier = Modifier
                     .shadow(
                         elevation = 5.dp,
@@ -99,7 +127,7 @@ fun TestBody(modifier: Modifier = Modifier) {
                 color = DarkBlue
             )
             Text(
-                text = "20%",
+                text = progressText,
                 fontWeight = FontWeight.W600,
                 fontSize = 17.sp,
                 lineHeight = 20.72.sp,
@@ -108,7 +136,7 @@ fun TestBody(modifier: Modifier = Modifier) {
 
         }
         LinearProgressIndicator(
-            progress = 0.2f,
+            progress = progress,
             color = SuccessGreen,
             trackColor = DisableGray,
             modifier = Modifier
@@ -125,18 +153,23 @@ fun TestBody(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "¿Con qué frecuencia te despiertas con mal humor?",
+                text = question.question,
                 fontWeight = FontWeight.W700,
                 fontSize = 24.sp,
                 lineHeight = 28.38.sp,
                 color = TTADarkGray,
                 modifier = Modifier.padding(bottom = 40.dp, top = 16.dp)
             )
+            question.answers.forEachIndexed { index, answer ->
+                AnswerButton(
+                    index = "${index + 1})",
+                    text = answer.text,
+                    onAnswerClick = { onAnswerClick(answer.id) },
+                    isSelect = isAnswerSelected(answer.id, question.id)
 
-            AnswerButton(index = "A)", text = "Casi todos los días")
-            AnswerButton(index = "B)", text = "Frecuentemente")
-            AnswerButton(index = "C)", text = "Raras veces", isSelect = true)
-            AnswerButton(index = "D)", text = "Nunca")
+                )
+            }
+
 
         }
     }
@@ -147,16 +180,14 @@ fun AnswerButton(
     index: String,
     text: String,
     modifier: Modifier = Modifier,
-    isSelect: Boolean = false
+    isSelect: Boolean = false,
+    onAnswerClick: () -> Unit
 ) {
     Button(
-        onClick = { /*TODO*/ },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = FinalOrangeApp,
-            disabledContainerColor = Color.White
-        ),
+        onClick = onAnswerClick,
+        colors = if (isSelect) ButtonDefaults.buttonColors(containerColor = FinalOrangeApp) else
+            ButtonDefaults.buttonColors(containerColor = Color.White),
         shape = MaterialTheme.shapes.medium,
-        enabled = isSelect,
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp),
         border = if (isSelect) null else BorderStroke(2.dp, DisableGray),
         modifier = modifier
@@ -164,7 +195,7 @@ fun AnswerButton(
             .padding(bottom = 20.dp)
             .height(58.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = index,
                 color = if (isSelect) Color.White else ContentGray,
@@ -184,19 +215,39 @@ fun AnswerButton(
 }
 
 
+//@Preview(showBackground = true)
+//@Composable
+//private fun TestBodyPreview() {
+//    TTATheme {
+//        TestBody(
+//            question = Question(
+//                id = "1",
+//                question = "¿Con qué frecuencia te despiertas con mal humor?",
+//                answers = listOf(
+//                    Answer(id = "a", text = "Casi todos los días"),
+//                    Answer(id = "b", text = "Frecuentemente"),
+//                    Answer(id = "c", text = "Raras veces"),
+//                    Answer(id = "d", text = "Nunca")
+//                )
+//            )
+//        )
+//    }
+//}
+//
+//@Preview(showBackground = true)
+//@Composable
+//private fun AnswerButtonPreview() {
+//    TTATheme {
+//        AnswerButton(index = "A)", text = "Muy poco")
+//
+//    }
+//}
+//
 @Preview(showBackground = true)
 @Composable
-private fun TestBodyPreview() {
+private fun TtaTestScreenPreview() {
     TTATheme {
-        TestBody()
+        TtaTestScreen()
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-private fun AnswerButtonPreview() {
-    TTATheme {
-        AnswerButton(index = "A)", text = "Muy poco")
-
-    }
 }

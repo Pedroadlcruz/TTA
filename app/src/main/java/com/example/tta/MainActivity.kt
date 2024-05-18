@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tta.features.diary.DiaryScreen
+import com.example.tta.features.tta_test.TtaTestScreen
 import com.example.tta.ui.theme.FinalOrangeApp
 import com.example.tta.ui.theme.TTATheme
 
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             TTATheme {
-                DiaryScreen()
+                TtaTestScreen()
             }
         }
     }
