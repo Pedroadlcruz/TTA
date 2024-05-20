@@ -49,7 +49,7 @@ import com.example.tta.utils.compositionLocals.DisabledRippleThemeColorAndAlpha
 
 @Composable
 fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewModel = viewModel()) {
-    val ttaViewState by ttaTestViewModel.viewStateFlow.collectAsState()
+    val ttaTestViewState by ttaTestViewModel.viewStateFlow.collectAsState()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -59,15 +59,24 @@ fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewMo
                 .padding(innerPadding),
             color = MaterialTheme.colorScheme.background
         ) {
+            when (val testState = ttaTestViewState.testState) {
+                is TestState.InProgress -> {
+                    TestBody(
+                        question =  testState.selectedQuestion,
+                        progress = ttaTestViewModel.progress(),
+                        progressText = ttaTestViewModel.progressText(),
+                        onEvent = ttaTestViewModel::processEvent,
+                        isAnswerSelected = ttaTestViewModel::isAnswerSelected
+                    )
+                }
 
-            TestBody(
-                question = ttaViewState.selectedQuestion!!,
-                progress = ttaTestViewModel.progress(),
-                progressText = ttaTestViewModel.progressText(),
-                onAnswerClick = ttaTestViewModel::onAnswerSelected,
-                onBackClick = { ttaTestViewModel.previousQuestion() },
-                isAnswerSelected =  ttaTestViewModel::isAnswerSelected
-            )
+                is TestState.Finished -> {
+                    Text(text = "Terminado")
+                }
+
+
+            }
+
         }
     }
 }
@@ -78,9 +87,8 @@ fun TestBody(
     question: Question,
     progress: Float,
     progressText: String,
-    onAnswerClick: (answerId: String) -> Unit,
-    onBackClick: () -> Unit,
-    isAnswerSelected: (answerId: String, questionId: String) -> Boolean,
+    onEvent: (ViewEvent) -> Unit,
+    isAnswerSelected: (answerId: String) -> Boolean,
 ) {
     Column(
         modifier = modifier
@@ -96,7 +104,7 @@ fun TestBody(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = onBackClick,
+                onClick = { onEvent(ViewEvent.GoToPreviousQuestion) },
                 modifier = Modifier
                     .shadow(
                         elevation = 5.dp,
@@ -157,8 +165,8 @@ fun TestBody(
                 AnswerButton(
                     index = "${index + 1})",
                     text = answer.text,
-                    onAnswerClick = { onAnswerClick(answer.id) },
-                    isSelect = isAnswerSelected(answer.id, question.id)
+                    onAnswerClick = { onEvent(ViewEvent.AnswerSelected(answer)) },
+                    isSelect = isAnswerSelected(answer.id)
 
                 )
             }
@@ -177,36 +185,39 @@ fun AnswerButton(
     onAnswerClick: () -> Unit
 ) {
     CompositionLocalProvider(LocalRippleTheme provides DisabledRippleThemeColorAndAlpha) {
-    Button(
-        onClick = onAnswerClick,
-        colors = if (isSelect) ButtonDefaults.buttonColors(containerColor = FinalOrangeApp) else
-            ButtonDefaults.buttonColors(containerColor = Color.White),
-        shape = MaterialTheme.shapes.medium,
-        elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp),
-        border = if (isSelect) null else BorderStroke(2.dp, DisableGray),
-        modifier = modifier
+        Button(
+            onClick = onAnswerClick,
+            colors = if (isSelect) ButtonDefaults.buttonColors(containerColor = FinalOrangeApp) else
+                ButtonDefaults.buttonColors(containerColor = Color.White),
+            shape = MaterialTheme.shapes.medium,
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 5.dp),
+            border = if (isSelect) null else BorderStroke(2.dp, DisableGray),
+            modifier = modifier
 
-            .fillMaxWidth()
-            .padding(bottom = 20.dp)
+                .fillMaxWidth()
+                .padding(bottom = 20.dp)
 
-    ) {
-        Row(modifier = Modifier.fillMaxWidth() .padding(vertical = 16.dp)) {
-            Text(
-                text = index,
-                color = if (isSelect) Color.White else ContentGray,
-                fontSize = 18.sp,
-                fontWeight = if (isSelect) FontWeight.Bold else FontWeight.W400,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-            Text(
-                text = text,
-                color = if (isSelect) Color.White else ContentGray,
-                fontSize = 18.sp,
-                fontWeight = if (isSelect) FontWeight.Bold else FontWeight.W400
-            )
+        ) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp)) {
+                Text(
+                    text = index,
+                    color = if (isSelect) Color.White else ContentGray,
+                    fontSize = 18.sp,
+                    fontWeight = if (isSelect) FontWeight.Bold else FontWeight.W400,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = text,
+                    color = if (isSelect) Color.White else ContentGray,
+                    fontSize = 18.sp,
+                    fontWeight = if (isSelect) FontWeight.Bold else FontWeight.W400
+                )
+            }
+
         }
-
-    }}
+    }
 
 }
 

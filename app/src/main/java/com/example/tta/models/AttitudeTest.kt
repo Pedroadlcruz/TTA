@@ -7,7 +7,12 @@ data class Question(
     val question: String,
     val answers: List<Answer>,
 
-)
+){
+    companion object {
+        val empty
+            get() = Question("", "", emptyList())
+    }
+}
 
 data class Answer(val id: String, val text: String)
 
