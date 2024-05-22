@@ -34,15 +34,26 @@ class TtaTestViewModel : ViewModel() {
                     questionId = question.id,
                     selectedAnswerId = answer.id
                 )
+
+                if (state.currentQuestion == questions.size - 1) {
+                    _viewStateFlow.update {
+                        it.copy(
+                            testState = TestState.Finished(
+                                responses = state.userAnswers.apply { add(userAnswer) }
+                            ))
+                    }
+                } else {
+                val showHalfwayMessage = state.currentQuestion == 9 && !state.gotHalfway
                 _viewStateFlow.update {
                     it.copy(
                         testState = it.testState.copy(
                             currentQuestion = state.currentQuestion + 1,
                             selectedQuestion = questions[state.currentQuestion + 1],
-                            userAnswers = state.userAnswers.apply { add(userAnswer) }
+                            userAnswers = state.userAnswers.apply { add(userAnswer) },
+                            showHalfwayMessage = showHalfwayMessage,
                         )
                     )
-                }
+                }}
 
             }
 
@@ -54,6 +65,18 @@ class TtaTestViewModel : ViewModel() {
                         testState = it.testState.copy(
                             currentQuestion = state.currentQuestion - 1,
                             selectedQuestion = questions[state.currentQuestion - 1]
+                        )
+                    )
+                }
+            }
+
+            ViewEvent.ContinueFromHalfway -> {
+
+                _viewStateFlow.update {
+                    it.copy(
+                        testState = it.testState.copy(
+                            gotHalfway = true,
+                            showHalfwayMessage = false
                         )
                     )
                 }
@@ -94,8 +117,7 @@ data class ViewState(
 )
 
 sealed interface ViewEffect {
-    data class ShowHalfwayMessage(val message: String) : ViewEffect
-
+    data object ShowHalfwayMessage : ViewEffect
 }
 
 sealed interface TestState {
@@ -103,6 +125,7 @@ sealed interface TestState {
         val selectedQuestion: Question = Question.empty,
         val currentQuestion: Int = 0,
         val gotHalfway: Boolean = false,
+        val showHalfwayMessage: Boolean = false,
         val userAnswers: MutableList<UserAnswer> = mutableListOf(),
     ) : TestState
 
@@ -110,11 +133,13 @@ sealed interface TestState {
         val responses: List<UserAnswer> = emptyList(),
     ) : TestState
 
+
     fun copy(
         selectedQuestion: Question? = null,
         currentQuestion: Int? = null,
         gotHalfway: Boolean? = null,
         userAnswers: MutableList<UserAnswer>? = null,
+        showHalfwayMessage: Boolean? = null,
     ): TestState {
         return when (this) {
             is InProgress -> copy(
@@ -122,6 +147,7 @@ sealed interface TestState {
                 userAnswers = userAnswers ?: this.userAnswers,
                 currentQuestion = currentQuestion ?: this.currentQuestion,
                 gotHalfway = gotHalfway ?: this.gotHalfway,
+                showHalfwayMessage = showHalfwayMessage ?: this.showHalfwayMessage,
             )
 
             is Finished -> throw IllegalAccessException("Finished state cannot be modified")
@@ -132,6 +158,7 @@ sealed interface TestState {
 
 sealed interface ViewEvent {
     data object GoToPreviousQuestion : ViewEvent
+    data object ContinueFromHalfway : ViewEvent
     data class AnswerSelected(val answer: Answer) : ViewEvent
     data object ConsumeEffect : ViewEvent
 }

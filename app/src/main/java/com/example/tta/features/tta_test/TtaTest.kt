@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -31,12 +32,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tta.R
 import com.example.tta.models.Question
+import com.example.tta.ui.common.AppButton
 import com.example.tta.ui.theme.BgGray
 import com.example.tta.ui.theme.ContentGray
 import com.example.tta.ui.theme.DarkBlue
@@ -61,24 +64,91 @@ fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewMo
         ) {
             when (val testState = ttaTestViewState.testState) {
                 is TestState.InProgress -> {
-                    TestBody(
-                        question =  testState.selectedQuestion,
-                        progress = ttaTestViewModel.progress(),
-                        progressText = ttaTestViewModel.progressText(),
-                        onEvent = ttaTestViewModel::processEvent,
-                        isAnswerSelected = ttaTestViewModel::isAnswerSelected
-                    )
+                    if (testState.showHalfwayMessage) {
+                        TtaTestMessage(
+                            onButtonClicked = {
+                            ttaTestViewModel.processEvent(ViewEvent.ContinueFromHalfway)
+                        })
+                    } else {
+                        TestBody(
+                            question = testState.selectedQuestion,
+                            progress = ttaTestViewModel.progress(),
+                            progressText = ttaTestViewModel.progressText(),
+                            onEvent = ttaTestViewModel::processEvent,
+                            isAnswerSelected = ttaTestViewModel::isAnswerSelected
+                        )
+                    }
                 }
 
                 is TestState.Finished -> {
-                    Text(text = "Terminado")
+                    TtaTestMessage(
+                        title = "¡Completado!",
+                        message = "¡Toma la iniciativa de conocer la mejor versión de ti!",
+                        image = R.drawable.img_test_completado,
+                        buttonText = "Ver mi resultado",
+                        onButtonClicked = {
+//                            ttaTestViewModel.processEvent(ViewEvent.GoToNextQuestion)
+                        })
                 }
+
 
 
             }
 
         }
     }
+}
+
+@Composable
+fun TtaTestMessage(
+    modifier: Modifier = Modifier,
+    title: String = "¡Vas bien!",
+    message: String = "¡Casi terminas!",
+    buttonText: String = "Continuar",
+    image: Int = R.drawable.img_vas_bien,
+    onButtonClicked: () -> Unit
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Test de la actitud", fontWeight = FontWeight.W600,
+            fontSize = 17.sp,
+            lineHeight = 20.72.sp,
+            color = DarkBlue, modifier = Modifier.padding(top = 72.dp)
+        )
+        Text(
+            text = title, fontWeight = FontWeight.W600,
+            fontSize = 40.sp,
+            lineHeight = 20.72.sp,
+            color = DarkBlue, modifier = Modifier.padding(top = 20.dp)
+        )
+        Image(
+            painter = painterResource(id = image),
+            contentDescription = null,
+            modifier = Modifier
+                .padding(top = 72.dp, bottom = 72.dp)
+                .background(Color.White)
+        )
+        Text(
+            text = message, fontWeight = FontWeight.W400,
+            fontSize = 17.sp,
+            lineHeight = 20.72.sp,
+            textAlign = TextAlign.Center,
+            color = DarkBlue, modifier = Modifier.padding(top = 20.dp, start = 48.dp, end = 48.dp)
+        )
+        AppButton(
+            text = buttonText,
+            modifier = Modifier
+                .padding(start = 32.dp, end = 32.dp, top = 40.dp, bottom = 16.dp)
+                .height(55.dp),
+            onClick = onButtonClicked
+
+        )
+    }
+
 }
 
 @Composable
@@ -198,9 +268,11 @@ fun AnswerButton(
                 .padding(bottom = 20.dp)
 
         ) {
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+            ) {
                 Text(
                     text = index,
                     color = if (isSelect) Color.White else ContentGray,
@@ -255,6 +327,15 @@ fun AnswerButton(
 private fun TtaTestScreenPreview() {
     TTATheme {
         TtaTestScreen()
+    }
+
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HalfwayMessagePreview() {
+    TTATheme {
+        TtaTestMessage( onButtonClicked = {})
     }
 
 }

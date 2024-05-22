@@ -85,7 +85,7 @@ fun ProfileBody(modifier: Modifier = Modifier) {
                 text = "VER RESULTADOS DEL TEST",
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
-                    .height(55.dp)
+                    .height(55.dp), onClick = {}
             )
 //            BooksSlider(books = allBooks)
             RecommendedBooks()

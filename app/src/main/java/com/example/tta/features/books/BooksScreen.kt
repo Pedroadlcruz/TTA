@@ -127,14 +127,16 @@ fun BookCard(cover: Int, title: String, author: String, modifier: Modifier = Mod
             ) {
                 Text(text = title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
                 Text(text = author, fontSize = 14.sp, color = Color.Gray)
-                AppButton("COMPRAR",modifier = Modifier.align(alignment = Alignment.End))
+                AppButton(
+                    "COMPRAR",
+                    modifier = Modifier.align(alignment = Alignment.End),
+                    onClick = { /*TODO*/ })
 
             }
         }
     }
 
 }
-
 
 
 @Preview(showBackground = true)
