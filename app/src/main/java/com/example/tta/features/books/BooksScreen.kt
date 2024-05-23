@@ -90,11 +90,11 @@ fun BooksBody(books: List<Book>, modifier: Modifier = Modifier) {
                     .align(alignment = Alignment.CenterHorizontally)
             )
             LazyColumn(modifier = Modifier) {
-                items(books.size) { book ->
+                items(books.size, key = {it}) { index ->
                     BookCard(
-                        cover = books.elementAt(book).cover,
-                        title = books.elementAt(book).title,
-                        author = books.elementAt(book).author
+                        cover = books.elementAt(index).cover,
+                        title = books.elementAt(index).title,
+                        author = books.elementAt(index).author
                     )
                 }
             }
