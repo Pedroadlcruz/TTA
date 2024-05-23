@@ -34,26 +34,50 @@ class TtaTestViewModel : ViewModel() {
                     questionId = question.id,
                     selectedAnswerId = answer.id
                 )
-
                 if (state.currentQuestion == questions.size - 1) {
                     _viewStateFlow.update {
                         it.copy(
                             testState = TestState.Finished(
-                                responses = state.userAnswers.apply { add(userAnswer) }
-                            ))
+                                responses = state.userAnswers.apply { add(userAnswer) })
+                        )
                     }
                 } else {
-                val showHalfwayMessage = state.currentQuestion == 9 && !state.gotHalfway
-                _viewStateFlow.update {
-                    it.copy(
-                        testState = it.testState.copy(
-                            currentQuestion = state.currentQuestion + 1,
-                            selectedQuestion = questions[state.currentQuestion + 1],
-                            userAnswers = state.userAnswers.apply { add(userAnswer) },
-                            showHalfwayMessage = showHalfwayMessage,
-                        )
-                    )
-                }}
+                    when (state.halfwayMessage) {
+                        HalfwayMessage.Shown -> {
+                            _viewStateFlow.update {
+                                it.copy(
+                                    testState = it.testState.copy(
+                                        currentQuestion = state.currentQuestion + 1,
+                                        selectedQuestion = questions[state.currentQuestion + 1],
+                                        userAnswers = state.userAnswers.apply { add(userAnswer) },
+                                    )
+                                )
+                            }
+
+                        }
+
+                        HalfwayMessage.NotShown -> {
+                            val showHalfwayMessage =
+                                state.currentQuestion == 9 && state.halfwayMessage == HalfwayMessage.NotShown
+                            _viewStateFlow.update { it ->
+                                it.copy(
+                                    testState = it.testState.copy(
+                                        currentQuestion = state.currentQuestion + 1,
+                                        selectedQuestion = questions[state.currentQuestion + 1],
+                                        userAnswers = state.userAnswers.apply { add(userAnswer) },
+                                        halfwayMessage = showHalfwayMessage.takeIf { it }
+                                            ?.let { HalfwayMessage.Visible }
+//                                            ?: HalfwayMessage.NotShown
+                                    )
+                                )
+                            }
+
+                        }
+
+                        else -> {}
+                    }
+
+                }
 
             }
 
@@ -71,12 +95,10 @@ class TtaTestViewModel : ViewModel() {
             }
 
             ViewEvent.ContinueFromHalfway -> {
-
                 _viewStateFlow.update {
                     it.copy(
                         testState = it.testState.copy(
-                            gotHalfway = true,
-                            showHalfwayMessage = false
+                            halfwayMessage = HalfwayMessage.Shown
                         )
                     )
                 }
@@ -124,8 +146,7 @@ sealed interface TestState {
     data class InProgress(
         val selectedQuestion: Question = Question.empty,
         val currentQuestion: Int = 0,
-        val gotHalfway: Boolean = false,
-        val showHalfwayMessage: Boolean = false,
+        val halfwayMessage: HalfwayMessage = HalfwayMessage.NotShown,
         val userAnswers: MutableList<UserAnswer> = mutableListOf(),
     ) : TestState
 
@@ -137,17 +158,16 @@ sealed interface TestState {
     fun copy(
         selectedQuestion: Question? = null,
         currentQuestion: Int? = null,
-        gotHalfway: Boolean? = null,
         userAnswers: MutableList<UserAnswer>? = null,
-        showHalfwayMessage: Boolean? = null,
-    ): TestState {
+        halfwayMessage: HalfwayMessage? = null,
+
+        ): TestState {
         return when (this) {
             is InProgress -> copy(
                 selectedQuestion = selectedQuestion ?: this.selectedQuestion,
                 userAnswers = userAnswers ?: this.userAnswers,
                 currentQuestion = currentQuestion ?: this.currentQuestion,
-                gotHalfway = gotHalfway ?: this.gotHalfway,
-                showHalfwayMessage = showHalfwayMessage ?: this.showHalfwayMessage,
+                halfwayMessage = halfwayMessage ?: this.halfwayMessage,
             )
 
             is Finished -> throw IllegalAccessException("Finished state cannot be modified")
@@ -161,4 +181,10 @@ sealed interface ViewEvent {
     data object ContinueFromHalfway : ViewEvent
     data class AnswerSelected(val answer: Answer) : ViewEvent
     data object ConsumeEffect : ViewEvent
+}
+
+sealed interface HalfwayMessage {
+    data object Shown : HalfwayMessage
+    data object NotShown : HalfwayMessage
+    data object Visible : HalfwayMessage
 }

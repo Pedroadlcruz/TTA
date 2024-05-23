@@ -1,6 +1,7 @@
 package com.example.tta.features.tta_test
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,11 +67,11 @@ fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewMo
         ) {
             when (val testState = ttaTestViewState.testState) {
                 is TestState.InProgress -> {
-                    if (testState.showHalfwayMessage) {
+                    if (testState.halfwayMessage == HalfwayMessage.Visible) {
                         TtaTestMessage(
                             onButtonClicked = {
-                            ttaTestViewModel.processEvent(ViewEvent.ContinueFromHalfway)
-                        })
+                                ttaTestViewModel.processEvent(ViewEvent.ContinueFromHalfway)
+                            })
                     } else {
                         TestBody(
                             question = testState.selectedQuestion,
@@ -91,8 +94,16 @@ fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewMo
                         })
                 }
 
-
-
+            }
+            val context = LocalContext.current
+            LaunchedEffect(ttaTestViewState.viewEffect) {
+                ttaTestViewState.viewEffect?.let { viewEffect ->
+                    when (viewEffect) {
+                        ViewEffect.ShowHalfwayMessage -> {
+                            // TODO
+                        }
+                    }
+                }
             }
 
         }
@@ -151,6 +162,7 @@ fun TtaTestMessage(
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TestBody(
     modifier: Modifier = Modifier,
@@ -217,30 +229,32 @@ fun TestBody(
                 .padding(horizontal = 24.dp),
             strokeCap = StrokeCap.Round
         )
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = question.question,
-                fontWeight = FontWeight.W700,
-                fontSize = 24.sp,
-                lineHeight = 28.38.sp,
-                color = TTADarkGray,
-                modifier = Modifier.padding(bottom = 40.dp, top = 16.dp)
-            )
-            question.answers.forEachIndexed { index, answer ->
+            item {
+                Text(
+                    text = question.question,
+                    fontWeight = FontWeight.W700,
+                    fontSize = 24.sp,
+                    lineHeight = 28.38.sp,
+                    color = TTADarkGray,
+                    modifier = Modifier.padding(bottom = 40.dp, top = 16.dp)
+                )
+            }
+            items(question.answers.size, key = { index -> question.answers[index].id }) { index ->
+                val answer = question.answers[index]
                 AnswerButton(
+                    modifier = Modifier.padding(bottom = 8.dp).animateItemPlacement(),
                     index = "${index + 1})",
                     text = answer.text,
                     onAnswerClick = { onEvent(ViewEvent.AnswerSelected(answer)) },
                     isSelect = isAnswerSelected(answer.id)
-
                 )
             }
-
 
         }
     }
@@ -335,7 +349,7 @@ private fun TtaTestScreenPreview() {
 @Composable
 private fun HalfwayMessagePreview() {
     TTATheme {
-        TtaTestMessage( onButtonClicked = {})
+        TtaTestMessage(onButtonClicked = {})
     }
 
 }
