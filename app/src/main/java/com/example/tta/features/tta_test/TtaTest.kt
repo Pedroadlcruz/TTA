@@ -119,45 +119,57 @@ fun TtaTestMessage(
     image: Int = R.drawable.img_vas_bien,
     onButtonClicked: () -> Unit
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Test de la actitud", fontWeight = FontWeight.W600,
-            fontSize = 17.sp,
-            lineHeight = 20.72.sp,
-            color = DarkBlue, modifier = Modifier.padding(top = 72.dp)
-        )
-        Text(
-            text = title, fontWeight = FontWeight.W600,
-            fontSize = 40.sp,
-            lineHeight = 20.72.sp,
-            color = DarkBlue, modifier = Modifier.padding(top = 20.dp)
-        )
-        Image(
-            painter = painterResource(id = image),
-            contentDescription = null,
-            modifier = Modifier
-                .padding(top = 72.dp, bottom = 72.dp)
-                .background(Color.White)
-        )
-        Text(
-            text = message, fontWeight = FontWeight.W400,
-            fontSize = 17.sp,
-            lineHeight = 20.72.sp,
-            textAlign = TextAlign.Center,
-            color = DarkBlue, modifier = Modifier.padding(top = 20.dp, start = 48.dp, end = 48.dp)
-        )
-        AppButton(
-            text = buttonText,
-            modifier = Modifier
-                .padding(start = 32.dp, end = 32.dp, top = 40.dp, bottom = 16.dp)
-                .height(55.dp),
-            onClick = onButtonClicked
+        item {
+            Text(
+                text = "Test de la actitud", fontWeight = FontWeight.W600,
+                fontSize = 17.sp,
+                lineHeight = 20.72.sp,
+                color = DarkBlue, modifier = Modifier.padding(top = 48.dp)
+            )
+        }
+        item {
+            Text(
+                text = title, fontWeight = FontWeight.W600,
+                fontSize = 40.sp,
+                lineHeight = 20.72.sp,
+                color = DarkBlue, modifier = Modifier.padding(top = 20.dp)
+            )
+        }
+        item {
+            Image(
+                painter = painterResource(id = image),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(top = 72.dp, bottom = 72.dp)
+                    .background(Color.White)
+            )
+        }
+        item {
+            Text(
+                text = message,
+                fontWeight = FontWeight.W400,
+                fontSize = 17.sp,
+                lineHeight = 20.72.sp,
+                textAlign = TextAlign.Center,
+                color = DarkBlue,
+                modifier = Modifier.padding(top = 20.dp, start = 48.dp, end = 48.dp)
+            )
+        }
+        item {
+            AppButton(
+                text = buttonText,
+                modifier = Modifier
+                    .padding(start = 32.dp, end = 32.dp, top = 40.dp, bottom = 16.dp)
+                    .height(55.dp),
+                onClick = onButtonClicked
 
-        )
+            )
+        }
     }
 
 }
@@ -172,91 +184,97 @@ fun TestBody(
     onEvent: (ViewEvent) -> Unit,
     isAnswerSelected: (answerId: String) -> Boolean,
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier
-            .fillMaxSize()
             .background(BgGray)
+            .fillMaxSize()
+            .padding(horizontal = 24.dp)
+
+
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { onEvent(ViewEvent.GoToPreviousQuestion) },
+        item { Header(onEvent, progressText) }
+        item {
+            LinearProgressIndicator(
+                progress = progress,
+                color = SuccessGreen,
+                trackColor = DisableGray,
                 modifier = Modifier
-                    .shadow(
-                        elevation = 5.dp,
-                        shape = MaterialTheme.shapes.extraLarge,
-                        ambientColor = Color.Black,
-                        spotColor = Color.Black
-                    )
-                    .background(Color.White)
-                    .size(40.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_keyboard_backspace_2),
-                    contentDescription = null
-                )
-            }
-            Text(
-                text = "Test de la actitud",
-                fontWeight = FontWeight.W600,
-                fontSize = 17.sp,
-                lineHeight = 20.72.sp,
-                color = DarkBlue
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp, top = 24.dp)
+                    .height(12.dp),
+                strokeCap = StrokeCap.Round
             )
-            Text(
-                text = progressText,
-                fontWeight = FontWeight.W600,
-                fontSize = 17.sp,
-                lineHeight = 20.72.sp,
-                color = Color.Black
-            )
-
         }
-        LinearProgressIndicator(
-            progress = progress,
-            color = SuccessGreen,
-            trackColor = DisableGray,
+        item {
+            Text(
+                text = question.question,
+                fontWeight = FontWeight.W700,
+                fontSize = 24.sp,
+                lineHeight = 28.38.sp,
+                color = TTADarkGray,
+                modifier = Modifier.padding(bottom = 40.dp, top = 16.dp)
+            )
+        }
+        items(question.answers.size, key = { index -> question.answers[index].id }) { index ->
+            val answer = question.answers[index]
+            AnswerButton(
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .animateItemPlacement(),
+                index = "${index + 1})",
+                text = answer.text,
+                onAnswerClick = { onEvent(ViewEvent.AnswerSelected(answer)) },
+                isSelect = isAnswerSelected(answer.id)
+            )
+        }
+
+
+    }
+}
+
+@Composable
+private fun Header(
+    onEvent: (ViewEvent) -> Unit,
+    progressText: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 40.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = { onEvent(ViewEvent.GoToPreviousQuestion) },
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 12.dp, top = 12.dp)
-                .height(12.dp)
-                .padding(horizontal = 24.dp),
-            strokeCap = StrokeCap.Round
-        )
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .shadow(
+                    elevation = 5.dp,
+                    shape = MaterialTheme.shapes.extraLarge,
+                    ambientColor = Color.Black,
+                    spotColor = Color.Black
+                )
+                .background(Color.White)
+                .size(40.dp)
         ) {
-            item {
-                Text(
-                    text = question.question,
-                    fontWeight = FontWeight.W700,
-                    fontSize = 24.sp,
-                    lineHeight = 28.38.sp,
-                    color = TTADarkGray,
-                    modifier = Modifier.padding(bottom = 40.dp, top = 16.dp)
-                )
-            }
-            items(question.answers.size, key = { index -> question.answers[index].id }) { index ->
-                val answer = question.answers[index]
-                AnswerButton(
-                    modifier = Modifier.padding(bottom = 8.dp).animateItemPlacement(),
-                    index = "${index + 1})",
-                    text = answer.text,
-                    onAnswerClick = { onEvent(ViewEvent.AnswerSelected(answer)) },
-                    isSelect = isAnswerSelected(answer.id)
-                )
-            }
-
+            Image(
+                painter = painterResource(id = R.drawable.ic_keyboard_backspace_2),
+                contentDescription = null
+            )
         }
+        Text(
+            text = "Test de la actitud",
+            fontWeight = FontWeight.W600,
+            fontSize = 17.sp,
+            lineHeight = 20.72.sp,
+            color = DarkBlue
+        )
+        Text(
+            text = progressText,
+            fontWeight = FontWeight.W600,
+            fontSize = 17.sp,
+            lineHeight = 20.72.sp,
+            color = Color.Black
+        )
     }
 }
 
