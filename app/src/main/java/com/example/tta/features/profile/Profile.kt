@@ -85,7 +85,7 @@ fun ProfileBody(modifier: Modifier = Modifier) {
                 text = "VER RESULTADOS DEL TEST",
                 modifier = Modifier
                     .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
-                    .height(55.dp)
+                    .height(55.dp), onClick = {}
             )
 //            BooksSlider(books = allBooks)
             RecommendedBooks()
@@ -186,11 +186,11 @@ fun ResultCard(modifier: Modifier = Modifier) {
 @Composable
 fun BooksSlider(books: List<Book>, modifier: Modifier = Modifier) {
     LazyRow(modifier = modifier) {
-        items(books.size) { book ->
+        items(books.size, key = { it }) { index ->
             BookCard(
-                cover = books.elementAt(book).cover,
-                title = books.elementAt(book).title,
-                author = books.elementAt(book).author
+                cover = books.elementAt(index).cover,
+                title = books.elementAt(index).title,
+                author = books.elementAt(index).author
             )
         }
     }

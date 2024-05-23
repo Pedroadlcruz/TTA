@@ -14,9 +14,9 @@ import androidx.compose.ui.unit.sp
 import com.example.tta.ui.theme.FinalOrangeApp
 
 @Composable
-fun AppButton(text: String, modifier: Modifier = Modifier) {
+fun AppButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
-        onClick = { /*TODO*/ },
+        onClick = onClick,
         colors = ButtonDefaults.buttonColors(containerColor = FinalOrangeApp),
         modifier = modifier
             .fillMaxWidth()
