@@ -6,14 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -90,11 +87,11 @@ fun BooksBody(books: List<Book>, modifier: Modifier = Modifier) {
                     .align(alignment = Alignment.CenterHorizontally)
             )
             LazyColumn(modifier = Modifier) {
-                items(books.size) { book ->
+                items(books.size, key = {it}) { index ->
                     BookCard(
-                        cover = books.elementAt(book).cover,
-                        title = books.elementAt(book).title,
-                        author = books.elementAt(book).author
+                        cover = books.elementAt(index).cover,
+                        title = books.elementAt(index).title,
+                        author = books.elementAt(index).author
                     )
                 }
             }
