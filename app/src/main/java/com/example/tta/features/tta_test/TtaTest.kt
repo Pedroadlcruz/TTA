@@ -39,7 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tta.R
 import com.example.tta.models.Question
 import com.example.tta.ui.common.AppButton
@@ -54,7 +54,9 @@ import com.example.tta.ui.theme.TTATheme
 import com.example.tta.utils.compositionLocals.DisabledRippleThemeColorAndAlpha
 
 @Composable
-fun TtaTestScreen(modifier: Modifier = Modifier, ttaTestViewModel: TtaTestViewModel = viewModel()) {
+fun TtaTestScreen(modifier: Modifier = Modifier,
+                  ttaTestViewModel: TtaTestViewModel = hiltViewModel(),
+                  ) {
     val ttaTestViewState by ttaTestViewModel.viewStateFlow.collectAsState()
 
     Scaffold(
